@@ -5,11 +5,28 @@ import uuid
 import math
 import random
 
+colors = [
+    '#2a9d8f',
+    '#e9c46a',
+    '#f4a261',
+    '#e76f51'
+    '#ffafcc' # scheme 2
+    '#cdb4db',
+    '#ffc8dd',
+    '#bde0fe',
+    '#a2d2ff',
+    '#f1faee'
+]
+
 pygame.init()
 
 SCREEN_SIZE = (1920, 1080)
 SCREEN_HALF_SIZE = (1920/2, 1080/2)
 screen = pygame.display.set_mode(SCREEN_SIZE)
+myfont = pygame.font.SysFont('Corbel', 30)
+myfontSMALL = pygame.font.SysFont('Corbel', 20)
+
+SCREENSHOT_NUMBER = 0
 
 TRAILS = []
 
@@ -17,8 +34,7 @@ TRAILS = []
 G = 6.67430*(10**(-11))
 
 def alpha(color):
-    # print(color, '->', (color[0], color[1], color[2], int(0.2*255)))
-    return Color(color[0], color[1], color[2], int(0*255))
+    return Color(color[0], color[1], color[2], int(0.6*255))
 # init the trails
 
 def calc_forces(LIST_OF_BODYS):
@@ -59,7 +75,7 @@ def hextofloats(h):
     return tuple(int(h[i:i + 2], 16) for i in (1, 3, 5))
 
 class Body:
-    def __init__(self, start_pos, weight, a = 1, size = 5, vel = (0,0),color = (255, 255, 200)):
+    def __init__(self, start_pos, weight, a = 1, size = 5, vel = (0,0),color = (255, 255, 255)):
         self.pos = start_pos
         self.weight = weight
         self.size = size
@@ -177,13 +193,11 @@ def is_sus_two(p):
     return r
 
 def karthus_ult(LIST, r, TRAILS):
-    # print(r)
     if r <= 0:
         r = abs(r)
     for b in LIST:
         np = mult(b.pos, (r))
         b.pos = np
-        # b.pos = add(b.pos, np)
         b.velocity = mult(b.velocity, r)
         b.weight = b.weight * r
     for i in range(len(TRAILS)):
@@ -256,3 +270,63 @@ def auto_zoom(LIST, TRAILS):
         r = min(rX, rY)
 
         karthus_ult(LIST, r, TRAILS)
+
+def update_fps(clock, font):
+	fps = str(int(clock.get_fps()))
+	fps_text = font.render(fps, 1, pygame.Color("coral"))
+	return fps_text
+
+def draw_button(pos, text, width = 100, height = 50, col=(255, 255, 255), background_col = '#2a2a2a'):
+    if (width == 100 and height == 50):
+       margin = 20
+       width = 0.2*SCREEN_HALF_SIZE[0] - 2*margin
+    surface = pygame.Surface((width, height), pygame.SRCALPHA, 32)
+    surface.fill(background_col)
+    rec = pygame.Rect(pos[0], pos[1], width, height)
+
+    pygame.draw.rect(surface, colors[7], rec, 2)
+    textsurface = myfontSMALL.render(text, True, colors[7])
+
+    text_size = textsurface.get_width()
+
+    point = ((width/2) - text_size/2,(height/2)-10)
+    surface.blit(textsurface, point)
+    return surface
+
+def in_screen(p):
+    if p[0] < -0.8*SCREEN_HALF_SIZE[0]:
+        return False
+    if p[0] > 0.8*SCREEN_HALF_SIZE[0]:
+        return False
+    if p[1] < -0.8*SCREEN_HALF_SIZE[1]:
+        return False
+    if p[1] > 0.8*SCREEN_HALF_SIZE[1]:
+        return False
+    return True
+
+def clicked(b, a, p):
+    rect = b.get_rect()
+    # print('step 0 of 2')
+    if p[0] >= rect[0]+a[0] and p[0] <= rect[2]+a[0]:
+        # print('step 1 of 2')
+        if p[1] >= rect[1] + a[1] and p[1] <= rect[3]+a[1]:
+            return True
+    return False
+
+def hovered(b, a, p):
+    rect = b.get_rect()
+    if p[0] >= rect[0]+a[0] and p[0] <= rect[2]+a[0]:
+        if p[1] >= rect[1] + a[1] and p[1] <= rect[3]+a[1]:
+            return True
+    return False
+
+def place_astre(position, BODYS, TRAILS):
+    # Body(start_pos, weight)
+    b = Body(sub(position, SCREEN_HALF_SIZE), 50000, color=hextofloats(random.choice(colors)))
+    BODYS.append(b)
+    TRAILS.append([b.pos])
+    return BODYS, TRAILS
+
+def record(s, n):
+    path = f"./TEMP/shot{n}.png"
+    pygame.image.save(s, path)
