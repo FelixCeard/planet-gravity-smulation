@@ -127,16 +127,54 @@ def fucking_go_auto_zoom(LIST_OF_BODYS, TRAILS):
             return reshape_everything(LIST_OF_BODYS, r, TRAILS)
     return False
 
-def is_sus(p1):
-    if p1[0] < -1*SCREEN_HALF_SIZE[0]/2:
-        return 1
-    if p1[1] < -1*SCREEN_HALF_SIZE[1]/2:
-        return 2
-    if p1[0] > SCREEN_HALF_SIZE[0]/2:
-        return 3
-    if p1[1] > SCREEN_HALF_SIZE[1]/2:
-        return 4
-    return 0
+
+def is_sus_two(p):
+    X_suss, Y_suss = 0, 0
+    r = 1
+
+    if p[1] < -0.75*SCREEN_HALF_SIZE[1]:
+        Y_suss = -1
+    elif p[1] > 0.75*SCREEN_HALF_SIZE[1]:
+        Y_suss = 1
+    if p[0] < -0.75*SCREEN_HALF_SIZE[0]:
+        X_suss = -1
+    elif p[0] > 0.75*SCREEN_HALF_SIZE[0]:
+        X_suss = 1
+    
+    if (X_suss != 0 and Y_suss == 0): # only a diff on the X-Axis 
+        if X_suss == -1: # left
+            offset = -0.75*SCREEN_HALF_SIZE[0] - p[0] 
+            # r = 0.75*SCREEN_HALF_SIZE[0]/(0.75*SCREEN_HALF_SIZE[0] + offset)
+        else: # right
+            offset = p[0] - 0.75*SCREEN_HALF_SIZE[0]
+        r = 0.75*SCREEN_HALF_SIZE[0]/(0.75*SCREEN_HALF_SIZE[0] + offset)
+
+    elif (Y_suss != 0 and X_suss == 0): # only a diff on he Y-Axis
+        if Y_suss == -1: # top
+            offset = -0.75*SCREEN_HALF_SIZE[1] - p[1]
+        else: # bottom
+            offset = p[1] - 0.75*SCREEN_HALF_SIZE[1]
+        
+        r = 0.75*SCREEN_HALF_SIZE[1]/(0.75*SCREEN_HALF_SIZE[1] + offset)
+    elif (Y_suss == 0 and X_suss == 0): # no diff
+        r = 1
+    else: # diff on both axis
+        if X_suss == -1: # left
+            offsetX = -0.75*SCREEN_HALF_SIZE[0] - p[0] 
+            # TODO calculate the r
+        else: # right
+            offsetX = p[0] - 0.75*SCREEN_HALF_SIZE[0]
+
+        if Y_suss == -1: # top
+            offsetY = -0.75*SCREEN_HALF_SIZE[1] - p[1]
+        else: # bottom
+            offsetY = p[1] - 0.75*SCREEN_HALF_SIZE[1]
+
+        rX = 0.75*SCREEN_HALF_SIZE[0]/(0.75*SCREEN_HALF_SIZE[0] + offsetX)
+        rY = 0.75*SCREEN_HALF_SIZE[1]/(0.75*SCREEN_HALF_SIZE[1] + offsetY)
+        
+        r = math.sqrt(math.pow(rX, 2) + math.pow(rY, 2))
+    return r
 
 def karthus_ult(LIST, r, TRAILS):
     # print(r)
@@ -147,6 +185,7 @@ def karthus_ult(LIST, r, TRAILS):
         b.pos = np
         # b.pos = add(b.pos, np)
         b.velocity = mult(b.velocity, r)
+        b.weight = b.weight * r
     for i in range(len(TRAILS)):
         for j in range(len(TRAILS[i])):
             np = mult(TRAILS[i][j], r)
@@ -154,24 +193,17 @@ def karthus_ult(LIST, r, TRAILS):
             # TRAILS[i][j] = add(TRAILS[i][j], np)
 
 def keep_in_line(LIST, tr):
-    ur = 1
+    ur = []
     for b in LIST:
-        p = (is_sus(b.pos))
-        if p != 0:
-            if p == 1: # left 
-                d = b.pos[0] + 0.5*SCREEN_HALF_SIZE[0]
-                r = (0.5*SCREEN_HALF_SIZE[0])/(0.5*SCREEN_HALF_SIZE[0]+d)
-            if p == 2: # top
-                d = b.pos[1] + 0.5*SCREEN_HALF_SIZE[1]
-                r = (0.5*SCREEN_HALF_SIZE[1])/(0.5*SCREEN_HALF_SIZE[1]+d)
-            if p == 3: # right 
-                d = b.pos[0] - 0.5*SCREEN_HALF_SIZE[0]
-                r = (0.5*SCREEN_HALF_SIZE[0])/(0.5*SCREEN_HALF_SIZE[0]+d)
-            if p == 4: # bottom
-                d = b.pos[1] - 0.5*SCREEN_HALF_SIZE[1] 
-                r = (0.5*SCREEN_HALF_SIZE[1])/(0.5*SCREEN_HALF_SIZE[1]+d)
-            ur = ur*r
-    karthus_ult(LIST, ur, tr)
+        r = is_sus_two(b.pos)
+        if r < 1:
+            ur.append(r)
+    if (len(ur) > 0):
+        karthus_ult(LIST, min(ur), tr)
+        # print(len(ur))
+        return True
+    else:
+        return False
 
 def center_the_shit(LIST, TRAILS):
     c = (0,0)
@@ -186,3 +218,41 @@ def center_the_shit(LIST, TRAILS):
         for j in range(len(TRAILS[i])):
             # np = mult(TRAILS[i][j], r)
             TRAILS[i][j] = sub(TRAILS[i][j], c)
+def can_zoom(LIST):
+    for b in LIST:
+        if b.pos[0] < -0.5*SCREEN_HALF_SIZE[0]:
+            return False
+        if b.pos[0] > 0.5*SCREEN_HALF_SIZE[0]:
+            return False
+        if b.pos[1] < -0.5*SCREEN_HALF_SIZE[1]:
+            return False
+        if b.pos[1] > 0.5*SCREEN_HALF_SIZE[1]:
+            return False
+    return True
+
+def auto_zoom(LIST, TRAILS):
+    can_do_zoom = can_zoom(LIST)
+    # print(can_do_zoom)
+    if can_do_zoom:
+        max_deltaX = SCREEN_HALF_SIZE[0]
+        max_deltaY = SCREEN_HALF_SIZE[1]
+        for b in LIST:
+            # check of the shortest distance
+            diff_top = abs(b.pos[1] - -0.5*SCREEN_HALF_SIZE[1])
+            diff_bottom = abs(b.pos[1] - 0.5*SCREEN_HALF_SIZE[1])
+            diff_left = abs(b.pos[0] - -0.5*SCREEN_HALF_SIZE[0])
+            diff_right = abs(b.pos[0] - 0.5*SCREEN_HALF_SIZE[0])
+
+            diffX = min(diff_left, diff_right)
+            diffY = min(diff_top, diff_bottom)
+
+            if max_deltaX > diffX:
+                max_deltaX = diffX
+            if max_deltaY > diffY:
+                max_deltaY = diffY
+        rX = SCREEN_HALF_SIZE[0]/(SCREEN_HALF_SIZE[0] - max_deltaX)
+        rY = SCREEN_HALF_SIZE[1]/(SCREEN_HALF_SIZE[1] - max_deltaY)
+        # r = math.sqrt(math.pow(rX, 2) + math.pow(rY, 2))
+        r = min(rX, rY)
+
+        karthus_ult(LIST, r, TRAILS)

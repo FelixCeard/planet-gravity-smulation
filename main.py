@@ -1,11 +1,14 @@
 import pygame
 import sys
 from functions import *
+import time 
 
 pygame.init()
 
 SCREEN_SIZE = (1920, 1080)
 screen = pygame.display.set_mode(SCREEN_SIZE)
+
+trail_screen = pygame.Surface(SCREEN_SIZE, pygame.SRCALPHA)
 
 
 
@@ -26,24 +29,20 @@ colors = [hextofloats(i) for i in colors]
 BODYS = [Body(
     (random.randrange(-0.5*SCREEN_HALF_SIZE[0], 0.5*SCREEN_HALF_SIZE[0]),
     random.randrange(-0.5*SCREEN_HALF_SIZE[1], 0.5*SCREEN_HALF_SIZE[1])),
-    10000, 
+    100000, 
     1, 
     5,
     # (-20, 0),
     (random.randrange(-1, 1)*random.random(),random.randrange(-1, 1)*random.random()),
-    random.choice(colors)) for i in range(10)]
+    random.choice(colors)) for i in range(50)]
 
 BODYS = []
-BODYS.append(Body((0,0), 50000, vel = (1, -2), a = 0.3, color=colors[3]))
-BODYS.append(Body((100,-200), 50000, vel = (2.8, -0.1), a = 0.3, color=colors[2]))
-BODYS.append(Body((200,10), 50000, vel = (0,0), color=colors[5]))
+BODYS.append(Body((0,0), 10000, vel = (1, -2), a = 0.5, color=colors[3]))
+BODYS.append(Body((100,-200), 100000, vel = (1.8, -0.1), a = 0.5, color=colors[2]))
+BODYS.append(Body((200,10), 100000, vel = (-1,0), color=colors[5]))
 
 tick_num = 0
 
-# center = get_center(BODYS)
-# center_diff = (SCREEN_SIZE[0]/2 - center[0], SCREEN_SIZE[1]/2 - center[1])
-# for b in BODYS:
-#     b.pos = (b.pos[0] + center_diff[0], b.pos[1] + center_diff[1])
 TRAILS = [[b.pos] for b in BODYS]
 
 while (True):
@@ -55,19 +54,28 @@ while (True):
                 sys.exit()
             if event.key == pygame.K_s:
                 center_da_bodys(BODYS)
+            if event.key == pygame.K_a:
+                time.sleep(9999)
     
     screen.fill("#2a2a2a")
-    
-    pygame.draw.line(screen, '#bde0fe', add((-0.5*SCREEN_HALF_SIZE[0], -0.5*SCREEN_HALF_SIZE[1]), SCREEN_HALF_SIZE), add((0.5*SCREEN_HALF_SIZE[0], -0.5*SCREEN_HALF_SIZE[1]), SCREEN_HALF_SIZE))
-    pygame.draw.line(screen, '#bde0fe', add((-0.5*SCREEN_HALF_SIZE[0], -0.5*SCREEN_HALF_SIZE[1]), SCREEN_HALF_SIZE), add((-0.5*SCREEN_HALF_SIZE[0], 0.5*SCREEN_HALF_SIZE[1]), SCREEN_HALF_SIZE))
-    pygame.draw.line(screen, '#bde0fe', add((-0.5*SCREEN_HALF_SIZE[0], 0.5*SCREEN_HALF_SIZE[1]), SCREEN_HALF_SIZE), add((0.5*SCREEN_HALF_SIZE[0], 0.5*SCREEN_HALF_SIZE[1]), SCREEN_HALF_SIZE))
-    pygame.draw.line(screen, '#bde0fe', add((0.5*SCREEN_HALF_SIZE[0], 0.5*SCREEN_HALF_SIZE[1]), SCREEN_HALF_SIZE), add((0.5*SCREEN_HALF_SIZE[0], -0.5*SCREEN_HALF_SIZE[1]), SCREEN_HALF_SIZE))
-    
+    trail_screen.fill('#2a2a2a')
+    trail_screen.set_alpha(0.5)
 
+    # pygame.draw.line(screen, '#bde0fe', add((-0.5*SCREEN_HALF_SIZE[0], -0.5*SCREEN_HALF_SIZE[1]), SCREEN_HALF_SIZE), add((0.5*SCREEN_HALF_SIZE[0], -0.5*SCREEN_HALF_SIZE[1]), SCREEN_HALF_SIZE))
+    # pygame.draw.line(screen, '#bde0fe', add((-0.5*SCREEN_HALF_SIZE[0], -0.5*SCREEN_HALF_SIZE[1]), SCREEN_HALF_SIZE), add((-0.5*SCREEN_HALF_SIZE[0], 0.5*SCREEN_HALF_SIZE[1]), SCREEN_HALF_SIZE))
+    # pygame.draw.line(screen, '#bde0fe', add((-0.5*SCREEN_HALF_SIZE[0], 0.5*SCREEN_HALF_SIZE[1]), SCREEN_HALF_SIZE), add((0.5*SCREEN_HALF_SIZE[0], 0.5*SCREEN_HALF_SIZE[1]), SCREEN_HALF_SIZE))
+    # pygame.draw.line(screen, '#bde0fe', add((0.5*SCREEN_HALF_SIZE[0], 0.5*SCREEN_HALF_SIZE[1]), SCREEN_HALF_SIZE), add((0.5*SCREEN_HALF_SIZE[0], -0.5*SCREEN_HALF_SIZE[1]), SCREEN_HALF_SIZE))
 
-    keep_in_line(BODYS, TRAILS)
-    center_the_shit(BODYS, TRAILS)
+    pygame.draw.line(screen, '#bde0fe', add((-0.75*SCREEN_HALF_SIZE[0], -0.75*SCREEN_HALF_SIZE[1]), SCREEN_HALF_SIZE), add((0.75*SCREEN_HALF_SIZE[0], -0.75*SCREEN_HALF_SIZE[1]), SCREEN_HALF_SIZE))
+    pygame.draw.line(screen, '#bde0fe', add((-0.75*SCREEN_HALF_SIZE[0], -0.75*SCREEN_HALF_SIZE[1]), SCREEN_HALF_SIZE), add((-0.75*SCREEN_HALF_SIZE[0], 0.75*SCREEN_HALF_SIZE[1]), SCREEN_HALF_SIZE))
+    pygame.draw.line(screen, '#bde0fe', add((-0.75*SCREEN_HALF_SIZE[0], 0.75*SCREEN_HALF_SIZE[1]), SCREEN_HALF_SIZE), add((0.75*SCREEN_HALF_SIZE[0], 0.75*SCREEN_HALF_SIZE[1]), SCREEN_HALF_SIZE))
+    pygame.draw.line(screen, '#bde0fe', add((0.75*SCREEN_HALF_SIZE[0], 0.75*SCREEN_HALF_SIZE[1]), SCREEN_HALF_SIZE), add((0.75*SCREEN_HALF_SIZE[0], -0.75*SCREEN_HALF_SIZE[1]), SCREEN_HALF_SIZE))    
+
     calc_forces(BODYS)
+    has_zoomed_out = keep_in_line(BODYS, TRAILS)
+    center_the_shit(BODYS, TRAILS)
+    if (has_zoomed_out == False):
+        auto_zoom(BODYS, TRAILS)
 
     
     for i in range(len(BODYS)):
@@ -83,9 +91,9 @@ while (True):
             k = [add(t, SCREEN_HALF_SIZE) for t in TRAILS[i]]
             if len(TRAILS[i]) > halfLEN:
                 pygame.draw.lines(screen, alpha(b.color), False, k[:halfLEN], 2)
-                pygame.draw.lines(screen, b.color, False, k[(halfLEN-1):], 2)
-                
+                pygame.draw.lines(screen, b.color, False, k[(halfLEN-1):], 2) 
             else:
-                pygame.draw.lines(screen, b.color, False, k, 2)
+                pygame.draw.lines(screen, alpha(b.color), False, k, 2)
     tick_num += 1
+    # screen.blit(trail_screen, pygame.Rect(0,0,1920, 1080))
     pygame.display.update()
