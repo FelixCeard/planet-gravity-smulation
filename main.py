@@ -33,10 +33,10 @@ BODYS = [Body(
     (random.randrange(-1, 1)*random.random(),random.randrange(-1, 1)*random.random()),
     random.choice(colors)) for i in range(10)]
 
-# BODYS = []
-# BODYS.append(Body((0,0), 50000, vel = (1, -2), a = 0.3, color=colors[3]))
-# BODYS.append(Body((100,-200), 50000, vel = (2.8, -0.1), a = 0.3, color=colors[2]))
-# BODYS.append(Body((200,10), 50000, vel = (0,0), color=colors[5]))
+BODYS = []
+BODYS.append(Body((0,0), 50000, vel = (1, -2), a = 0.3, color=colors[3]))
+BODYS.append(Body((100,-200), 50000, vel = (2.8, -0.1), a = 0.3, color=colors[2]))
+BODYS.append(Body((200,10), 50000, vel = (0,0), color=colors[5]))
 
 tick_num = 0
 
@@ -58,13 +58,11 @@ while (True):
     
     screen.fill("#2a2a2a")
     
-    pygame.draw.line(screen, '#bde0fe', (0.25*SCREEN_SIZE[0], 0.25*SCREEN_SIZE[1]), (0.75*SCREEN_SIZE[0], 0.25*SCREEN_SIZE[1]))
-    pygame.draw.line(screen, '#bde0fe', (0.25*SCREEN_SIZE[0], 0.25*SCREEN_SIZE[1]), (0.25*SCREEN_SIZE[0], 0.75*SCREEN_SIZE[1]))
-    pygame.draw.line(screen, '#bde0fe', (0.25*SCREEN_SIZE[0], 0.75*SCREEN_SIZE[1]), (0.75*SCREEN_SIZE[0], 0.75*SCREEN_SIZE[1]))
-    pygame.draw.line(screen, '#bde0fe', (0.75*SCREEN_SIZE[0], 0.75*SCREEN_SIZE[1]), (0.75*SCREEN_SIZE[0], 0.25*SCREEN_SIZE[1]))
-
-    # draw the center
-    # pygame.draw.circle(screen, '#bde0fe', (SCREEN_SIZE[0]/2, SCREEN_SIZE[1]/2), radius=2)
+    pygame.draw.line(screen, '#bde0fe', add((-0.5*SCREEN_HALF_SIZE[0], -0.5*SCREEN_HALF_SIZE[1]), SCREEN_HALF_SIZE), add((0.5*SCREEN_HALF_SIZE[0], -0.5*SCREEN_HALF_SIZE[1]), SCREEN_HALF_SIZE))
+    pygame.draw.line(screen, '#bde0fe', add((-0.5*SCREEN_HALF_SIZE[0], -0.5*SCREEN_HALF_SIZE[1]), SCREEN_HALF_SIZE), add((-0.5*SCREEN_HALF_SIZE[0], 0.5*SCREEN_HALF_SIZE[1]), SCREEN_HALF_SIZE))
+    pygame.draw.line(screen, '#bde0fe', add((-0.5*SCREEN_HALF_SIZE[0], 0.5*SCREEN_HALF_SIZE[1]), SCREEN_HALF_SIZE), add((0.5*SCREEN_HALF_SIZE[0], 0.5*SCREEN_HALF_SIZE[1]), SCREEN_HALF_SIZE))
+    pygame.draw.line(screen, '#bde0fe', add((0.5*SCREEN_HALF_SIZE[0], 0.5*SCREEN_HALF_SIZE[1]), SCREEN_HALF_SIZE), add((0.5*SCREEN_HALF_SIZE[0], -0.5*SCREEN_HALF_SIZE[1]), SCREEN_HALF_SIZE))
+    
 
 
     keep_in_line(BODYS, TRAILS)

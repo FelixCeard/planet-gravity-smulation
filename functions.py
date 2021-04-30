@@ -140,6 +140,8 @@ def is_sus(p1):
 
 def karthus_ult(LIST, r, TRAILS):
     # print(r)
+    if r <= 0:
+        r = abs(r)
     for b in LIST:
         np = mult(b.pos, (r))
         b.pos = np
@@ -152,6 +154,7 @@ def karthus_ult(LIST, r, TRAILS):
             # TRAILS[i][j] = add(TRAILS[i][j], np)
 
 def keep_in_line(LIST, tr):
+    ur = 1
     for b in LIST:
         p = (is_sus(b.pos))
         if p != 0:
@@ -167,8 +170,8 @@ def keep_in_line(LIST, tr):
             if p == 4: # bottom
                 d = b.pos[1] - 0.5*SCREEN_HALF_SIZE[1] 
                 r = (0.5*SCREEN_HALF_SIZE[1])/(0.5*SCREEN_HALF_SIZE[1]+d)
-            # print('r is', r)
-            karthus_ult(LIST, r, tr)
+            ur = ur*r
+    karthus_ult(LIST, ur, tr)
 
 def center_the_shit(LIST, TRAILS):
     c = (0,0)
