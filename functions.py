@@ -34,7 +34,7 @@ TRAILS = []
 G = 6.67430*(10**(-11))
 
 def alpha(color):
-    return Color(color[0], color[1], color[2], int(0.6*255))
+    return Color(color[0], color[1], color[2], int(0.4*255))
 # init the trails
 
 def calc_forces(LIST_OF_BODYS):

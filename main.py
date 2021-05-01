@@ -32,11 +32,21 @@ screen = pygame.display.set_mode(SCREEN_SIZE)
 colors = [hextofloats(i) for i in colors]
 
 BODYS = []
-BODYS.append(Body((0,0), 1000000, vel = (1, 2), a = 0.5, color=colors[3]))
-BODYS.append(Body((100,-200), 1000000, vel = (1.8, -0.1), a = 0.5, color=colors[2]))
-BODYS.append(Body((200,10), 1000000, vel = (1,1), a = 0.5, color=colors[5]))
-BODYS.append(Body((-200,100), 1000000, vel = (2,0), a = 0.5, color=colors[6]))
-BODYS.append(Body((250,0), 1000000, vel = (1.9,-0.5), a = 0.5, color=colors[7]))
+# BODYS.append(Body((0,0), 1000000, vel = (1, 2), a = 0.5, color=colors[3]))
+# BODYS.append(Body((100,-200), 1000000, vel = (1.8, -0.1), a = 0.5, color=colors[2]))
+# BODYS.append(Body((200,10), 1000000, vel = (1,1), a = 0.5, color=colors[5]))
+# BODYS.append(Body((-200,100), 1000000, vel = (2,0), a = 0.5, color=colors[6]))
+# BODYS.append(Body((250,0), 1000000, vel = (1.9,-0.5), a = 0.5, color=colors[7]))
+
+BODYS.append(Body((500,-700), 2000000, vel = (1, 2), a = 1, color=colors[3]))
+BODYS.append(Body((-500,700), 600000, vel = (0, -0.5), a = 1, color=colors[4]))
+BODYS.append(Body((432,0), 2000000, vel = (-2, -0.5), a = 1, color=colors[6]))
+BODYS.append(Body((random.randrange(-SCREEN_HALF_SIZE[0], SCREEN_HALF_SIZE[0]),random.randrange(-SCREEN_HALF_SIZE[1], SCREEN_HALF_SIZE[1])), 2000000, vel = (0.4, 3), a = 1, color=random.choice(colors)))
+BODYS.append(Body((random.randrange(-SCREEN_HALF_SIZE[0], SCREEN_HALF_SIZE[0]),random.randrange(-SCREEN_HALF_SIZE[1], SCREEN_HALF_SIZE[1])), 2000000, vel = (-0.2, 0.5), a = 1, color=random.choice(colors)))
+BODYS.append(Body((random.randrange(-SCREEN_HALF_SIZE[0], SCREEN_HALF_SIZE[0]),random.randrange(-SCREEN_HALF_SIZE[1], SCREEN_HALF_SIZE[1])), 2000000, vel = (1, 0.5), a = 1, color=random.choice(colors)))
+BODYS.append(Body((random.randrange(-SCREEN_HALF_SIZE[0], SCREEN_HALF_SIZE[0]),random.randrange(-SCREEN_HALF_SIZE[1], SCREEN_HALF_SIZE[1])), 2000000, vel = (-1, 0.5), a = 1, color=random.choice(colors)))
+# BODYS.append(Body((-500,700), 600000, vel = (0, -0.5), a = 0.5, color=colors[4]))
+
 
 tick_num = 0
 
@@ -147,7 +157,7 @@ while (True):
         for i in range(len(BODYS)):
                 b = BODYS[i]
                 b.draw()
-                if (tick_num % 5) == 0: 
+                if (tick_num % 2) == 0: 
                     # print("added points")
                     TRAILS[i].append(b.pos)
                     MAXLEN = 400
@@ -155,13 +165,14 @@ while (True):
                         TRAILS[i].pop(0)
                     halfLEN = int(MAXLEN/2)
                 k = [add(t, SCREEN_HALF_SIZE) for t in TRAILS[i] if in_screen(t)]
+                # k = [add(t, SCREEN_HALF_SIZE) for t in TRAILS[i]]
                 if len(k) >= 2:
                     pygame.draw.lines(trail_screen, alpha(b.color), False, k, 2)
     tick_num += 1
     screen.blit(trail_screen, (0, 0))
 
     # add the fps
-    screen.blit(update_fps(clock, myfont), (10,0))
+    # screen.blit(update_fps(clock, myfont), (10,0))
 
     pygame.display.update()
     # print(b3_variable, ' - ', tick_num)
